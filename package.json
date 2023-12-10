@@ -25,19 +25,15 @@
     "email": "",
     "url": ""
   },
-  "contributors": [
-
-  ],
+  "contributors": [],
   "dependencies": {
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.3.1",
     "express": "^4.17.3",
     "express-session": "^1.17.2",
+    "mongodb": "^6.3.0",
     "morgan": "^1.10.0",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "path": "^0.12.7"
-  },
-  "devDependencies": {
-
   }
 }
