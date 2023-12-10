@@ -9,11 +9,17 @@ const { Strategy } = passportLocal;
 // password credentials from the client. The LocalStrategy object is used to
 // authenticate a user using a username and password.
 const strategy = new Strategy(async (username, password, done) => {
-  if (!users.findUser(username)) {
+  const userFound = await users.findUser(username);
+  const passwordValidated = await users.validatePassword(username, password);
+  console.log("USER FOUND", userFound)
+  console.log("PASSWORD VALIDATED", userFound)
+  if (!userFound) {
+    console.log("USER NOT FOUND IN STRATEGY")
     // no such user
     return done(null, false, { message: 'Wrong username' });
   }
-  if (!users.validatePassword(username, password)) {
+  if (!passwordValidated) {
+    console.log("PW NOT VALIDATED IN STRATEGY")
     // invalid password
     // should disable logins after N messages
     // delay return to rate-limit brute-force attacks
@@ -22,6 +28,7 @@ const strategy = new Strategy(async (username, password, done) => {
   }
   // success!
   // should create a user object here, associated with a unique identifier
+  console.log("STRATEGY SUCCESSFUL")
   return done(null, username);
 });
 

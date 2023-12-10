@@ -39,6 +39,7 @@ auth.configure(app);
 function checkLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
     // If we are authenticated, run the next route.
+    console.log("AUTHENTICATED");
     next();
   } else {
     // Otherwise, redirect to the login page.

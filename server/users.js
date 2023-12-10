@@ -1,38 +1,68 @@
+import 'dotenv/config'
+import { MongoClient, ServerApiVersion } from 'mongodb';
+
 class Users {
-  constructor() {
+  constructor(dburl) {
     // we use an in-memory "database"; this isn't persistent but is easy
-    this.users = {};
+    // default user
+    this.dburl = dburl;
+  }
+
+  async connect() {
+    this.client = new MongoClient(this.dburl, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true, 
+      }
+    });
+    await this.client.connect();
+    this.db = this.client.db('auth');
+    this.users = this.db.collection('timestamps_users');
+  }
+
+  async close() {
+    this.client.close()
   }
 
   // Returns true iff the user exists.
-  findUser(username) {
-    if (!this.users[username]) {
-      return false;
+  async findUser(username) {
+    const user = await this.users.findOne({ name: username });
+    if (user === null) {
+      console.log("USER NOT FOUND", user);
+      return false; // User not found
     } else {
-      return true;
+      return user; // User found
     }
   }
 
   // Returns true iff the password is the one we have stored (in plaintext = bad
   // but easy).
-  validatePassword(name, pwd) {
-    if (!this.findUser(name)) {
+  async validatePassword(name, pwd) {
+    const userFound = await this.findUser(name);
+    if (userFound === false) {
       return false;
     }
-    if (this.users[name] !== pwd) {
+    if (userFound.pwd !== pwd) {
       return false;
     }
     return true;
   }
 
   // Add a user to the "database".
-  addUser(name, pwd) {
-    if (this.findUser(name)) {
+  async addUser(name, pwd) {
+    const userFound = await this.findUser(name);
+    if (userFound !== false) {
       return false;
     }
-    this.users[name] = pwd;
-    return true;
+    else {
+      await this.users.insertOne({name: name, pwd: pwd});
+      return true;
+    }
   }
 }
 
-export default new Users();
+const userDB = new Users(process.env.DATABASE_URL);
+await userDB.connect();
+
+export default userDB;
