@@ -114,7 +114,7 @@ app.get(
   (req, res) => {
     // Verify this is the right user.
     if (req.params.userID === req.user) {
-      console.log("Set User Name on Login", req.user);
+      console.log(`${(process.pid)}: Set User Name on Login`, req.user);
       define_user_post(req.user);
       res.sendFile(`${__dirname}/client/home.html`);
     } else {
@@ -125,12 +125,28 @@ app.get(
 
 const define_user_post = (req_user) => {
   app.post(`/client/${req_user}`, checkLoggedIn, async (req, res) => {
-    console.log("Made it work !");
-    console.log("BODY", req.body, typeof(req.body));
-    DB.addJob(req.body, res);
-    res.sendFile(`${__dirname}/client/home.html`);
+    console.log(`${(process.pid)}: Client Posting User Job: ${req.body}`);
+    try {
+      DB.addJob(req.body, res);
+      res.redirect(`/client/success`);
+    }
+    catch (err){
+      console.error(err);
+      res.redirect(`/client/failure`);
+    }
+    
   });
 }
+
+app.get(`/client/success`, checkLoggedIn, (req, res) => {
+  console.log(`${(process.pid)}: Client Post Success`);
+  res.status(200).sendFile(`${__dirname}/client/home.html`);
+});
+
+app.get(`/client/failure`, checkLoggedIn, (req, res) => {
+  console.log(`${(process.pid)}: Client Post Failure`);
+  res.status(500).sendFile(`${__dirname}/client/home.html`);
+});
 
 app.get('*', (req, res) => {
   res.send('Error');
