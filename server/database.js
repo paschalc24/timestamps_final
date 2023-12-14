@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-class Users {
+class Database {
   constructor(dburl) {
     // we use an in-memory "database"; this isn't persistent but is easy
     // default user
@@ -62,7 +62,7 @@ class Users {
   }
 }
 
-const userDB = new Users(process.env.DATABASE_URL);
-await userDB.connect();
+const DB = new Database(process.env.DATABASE_URL);
+await DB.connect();
 
-export default userDB;
+export default DB;

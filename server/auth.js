@@ -1,6 +1,6 @@
 import passport from 'passport';
 import passportLocal from 'passport-local';
-import users from './users.js';
+import DB from './database.js';
 
 const { Strategy } = passportLocal;
 
@@ -9,8 +9,8 @@ const { Strategy } = passportLocal;
 // password credentials from the client. The LocalStrategy object is used to
 // authenticate a user using a username and password.
 const strategy = new Strategy(async (username, password, done) => {
-  const userFound = await users.findUser(username);
-  const passwordValidated = await users.validatePassword(username, password);
+  const userFound = await DB.findUser(username);
+  const passwordValidated = await DB.validatePassword(username, password);
   console.log("USER FOUND", userFound)
   console.log("PASSWORD VALIDATED", userFound)
   if (!userFound) {

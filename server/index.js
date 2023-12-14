@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import expressSession from 'express-session';
-import users from './users.js';
+import DB from './database.js';
 import auth from './auth.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -78,7 +78,7 @@ app.get('/logout', (req, res) => {
 // Use res.redirect to change URLs.
 app.post('/register', (req, res) => {
   const { username, password } = req.body;
-  if (users.addUser(username, password)) {
+  if (DB.addUser(username, password)) {
     res.redirect('/login');
   } else {
     res.redirect('/register');
