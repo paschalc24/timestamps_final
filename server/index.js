@@ -11,6 +11,8 @@ import logger from 'morgan';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(dirname(__filename));
 
+let userName = "";
+
 // Create the Express app
 const app = express();
 const port = process.env.PORT || 3000;
@@ -112,12 +114,23 @@ app.get(
   (req, res) => {
     // Verify this is the right user.
     if (req.params.userID === req.user) {
+      console.log("Set User Name on Login", req.user);
+      define_user_post(req.user);
       res.sendFile(`${__dirname}/client/home.html`);
     } else {
       res.redirect('/client/');
     }
   }
 );
+
+const define_user_post = (req_user) => {
+  app.post(`/client/${req_user}`, checkLoggedIn, async (req, res) => {
+    console.log("Made it work !");
+    console.log("BODY", req.body, typeof(req.body));
+    DB.addJob(req.body, res);
+    res.sendFile(`${__dirname}/client/home.html`);
+  });
+}
 
 app.get('*', (req, res) => {
   res.send('Error');
