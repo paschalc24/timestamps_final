@@ -21,7 +21,7 @@ const months = [
     {name:"December", days: Array.from({ length: 31 }, (_, index) => index + 1)},
 ];
 
-const renderBoard = () => {
+const renderCalendar = () => {
     const monthName = months[month].name
     calendarGrid.innerHTML = '';
     monthHeader.textContent = `${monthName} ${year}`;
@@ -29,6 +29,7 @@ const renderBoard = () => {
     for (let item of months[month].days) {
         let gridItem = document.createElement("button");
         let modal = document.createElement("dialog");
+        modal.id = `${months[month]}-${months[month].days}`
         gridItem.classList.add('grid-item');
         gridItem.classList.add('card');
         
@@ -40,12 +41,17 @@ const renderBoard = () => {
         gridItem.innerHTML = String(item);
         
         // Define the content of the modal
-        modal.innerHTML = `<p>${monthName} ${item}</p> <button onclick="this.closest('dialog').close()">Close</button>`;
-        
-        // Append modal to the body or a specific container
-        // Make sure to append the modal outside the for-loop if all items use the same modal
+        let modalContent = document.createElement('p');
+        let closeButton = document.createElement('button');
+        closeButton.textContent = 'Close';
+        closeButton.addEventListener('click', () => {
+            const corr_modal = modal.closest('dialog')
+            corr_modal.close();
+        })
+        modalContent.innerHTML = `<p>${monthName} ${item}</p>`
+        modalContent.appendChild(closeButton);
+        modal.appendChild(modalContent);
         document.body.appendChild(modal);
-
         calendarGrid.appendChild(gridItem);
     }
 };
@@ -66,7 +72,7 @@ const updateMonthHeader = (next) => {
     }
     localStorage.setItem('month', month);
     localStorage.setItem('year', year);
-    renderBoard();
+    renderCalendar();
 }
 
 nextButton.addEventListener('click', () => {
@@ -77,4 +83,4 @@ prevButton.addEventListener('click', () => {
     updateMonthHeader(false);
 })
 
-renderBoard()
+renderCalendar()
