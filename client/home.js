@@ -5,6 +5,14 @@ const prevButton = document.getElementById('prev-button');
 const nextButton = document.getElementById('next-button');
 const monthHeader = document.getElementById('month-header');
 const calendarGrid = document.getElementById("calendar-grid");
+const submitButton = document.getElementById('submit-button');
+const startTime = document.getElementById('startTime');
+const endTime = document.getElementById('endTime');
+const date = document.getElementById('date');
+const location_input = document.getElementById('location');
+const employer = document.getElementById('employer');
+const workType = document.getElementById('workType');
+const hourlyWage = document.getElementById('hourlyWage');
 
 const months = [
     {name:"January", days:Array.from({ length: 31 }, (_, index) => index + 1)},
@@ -21,12 +29,26 @@ const months = [
     {name:"December", days: Array.from({ length: 31 }, (_, index) => index + 1)},
 ];
 
-const renderCalendar = () => {
-    const monthName = months[month].name
+const response = await fetch('http://localhost:3000/jobs')
+const data = await response.json();
+localStorage.setItem('jobs', JSON.stringify(data));
+
+const renderCalendar = async () => {
+    const monthName = months[month].name;
     calendarGrid.innerHTML = '';
     monthHeader.textContent = `${monthName} ${year}`;
-    
+    let jobsArray = JSON.parse(localStorage.getItem('jobs'));
+    let jobsMap = {};
+    for (const job of jobsArray) {
+        if (jobsMap[job.date]) {
+            jobsMap[job.date].push(job);
+        }
+        else {
+            jobsMap[job.date] = [job];
+        }
+    }
     for (let item of months[month].days) {
+        let mapKey = `${year}-${parseInt(month) + 1}-${item}`;
         let gridItem = document.createElement("button");
         let modal = document.createElement("dialog");
         modal.id = `${months[month]}-${months[month].days}`
@@ -48,7 +70,19 @@ const renderCalendar = () => {
             const corr_modal = modal.closest('dialog')
             corr_modal.close();
         })
-        modalContent.innerHTML = `<p>${monthName} ${item}</p>`
+        modalContent.innerHTML = `<p>${monthName} ${item}</p>`;
+        // MODAL CONTENT WILL GO HERE append all jobs as list
+        if (jobsMap[mapKey]) {
+            console.log("THIS MAPKEY HAS JOBS", mapKey);
+            for (const job of jobsMap[mapKey]) {
+                let jobListItem = document.createElement('ol');
+                jobListItem.textContent = JSON.stringify(job);
+                modalContent.appendChild(jobListItem);
+            }
+        }
+        else {
+            modalContent.innerHTML += `<br/><p>${"No Jobs Today"}</p>`
+        }
         modalContent.appendChild(closeButton);
         modal.appendChild(modalContent);
         document.body.appendChild(modal);
@@ -77,10 +111,14 @@ const updateMonthHeader = (next) => {
 
 nextButton.addEventListener('click', () => {
     updateMonthHeader(true);
-})
+});
 
 prevButton.addEventListener('click', () => {
     updateMonthHeader(false);
-})
+});
 
-renderCalendar()
+const validateString = () => {
+    return true;
+}
+
+renderCalendar();
