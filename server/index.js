@@ -107,11 +107,13 @@ app.get(
   }
 );
 
+// I have an express server with passport authentication here:
+
 // A page for the user.
 app.get(
   '/client/:userID/',
   checkLoggedIn, // We also protect this route: authenticated...
-  (req, res) => {
+  async (req, res) => {
     // Verify this is the right user.
     if (req.params.userID === req.user) {
       console.log(`${(process.pid)}: Set User Name on Login`, req.user);
@@ -127,7 +129,7 @@ const define_user_post = (req_user) => {
   app.post(`/client/${req_user}`, checkLoggedIn, async (req, res) => {
     console.log(`${(process.pid)}: Client Posting User Job: ${req.body}`);
     try {
-      DB.addJob(req.body, res);
+      DB.addJob({...req.body, user:req_user}, res);
       res.redirect(`/client/success`);
     }
     catch (err){
@@ -148,9 +150,21 @@ app.get(`/client/failure`, checkLoggedIn, (req, res) => {
   res.status(500).sendFile(`${__dirname}/client/home.html`);
 });
 
+app.get('/jobs', async (req, res) => {
+  try {
+    const jobsArray = await DB.getJobs(res);
+    res.status(200).json(jobsArray);
+  }
+  catch (err) {
+    console.error(err);
+    res.status(500).end();
+  }
+});
+
 app.get('*', (req, res) => {
   res.send('Error');
 });
+
 
 app.listen(port, () => {
   console.log(`App now listening at http://localhost:${port}`);

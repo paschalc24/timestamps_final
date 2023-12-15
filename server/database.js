@@ -81,6 +81,19 @@ class Database {
     }
     return true;
   }
+
+  async getJobs(res) {
+    console.log(`${(process.pid)}: DB getting jobs`);
+    try {
+      const jobsArray = await this.jobs.find({}).toArray();
+      res.status(200);
+      return jobsArray;
+    }
+    catch(error) {
+      console.error(error);
+      res.status(500);
+    }
+  }
 }
 
 const DB = new Database(process.env.DATABASE_URL);

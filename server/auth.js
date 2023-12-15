@@ -28,7 +28,7 @@ const strategy = new Strategy(async (username, password, done) => {
   }
   // success!
   // should create a user object here, associated with a unique identifier
-  console.log("STRATEGY SUCCESSFUL")
+  console.log("STRATEGY SUCCESSFUL");
   return done(null, username);
 });
 
